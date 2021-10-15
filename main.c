@@ -1,6 +1,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <mpi.h>
  
 // Number of vertices in the graph
 #define V 9
@@ -96,7 +97,25 @@ int main()
                         { 8, 11, 0, 0, 0, 0, 1, 0, 7 },
                         { 0, 0, 2, 0, 0, 0, 6, 7, 0 } };
  
-    int temporarySmallArray[V/3 + pid*3]; //3 separate sections;
+    int temporarySmallArray[V/3 + pid*3][10]; //3 separate sections;
+
+    /* //temporary small chunk either collect these three (process 1 contains the second one listed. process 3 contains the first one)
+    { 0, 0, 7, 0, 9, 14, 0, 0, 0 }, |  { 0, 4, 0, 0, 0, 0, 0, 8, 0 },  | { 0, 0, 0, 0, 0, 2, 0, 1, 6 },
+    { 0, 0, 0, 9, 0, 10, 0, 0, 0 }, |  { 4, 0, 8, 0, 0, 0, 0, 11, 0 }, | { 8, 11, 0, 0, 0, 0, 1, 0, 7 },
+    { 0, 0, 4, 14, 10, 0, 2, 0, 0 },|  { 4, 0, 8, 0, 0, 0, 0, 11, 0 }, | { 8, 11, 0, 0, 0, 0, 1, 0, 7 },
+    */
+
+    forE(3){
+        for(int j = 0; j<10; i++){
+            /*
+            Setting the first chunk of the graph stored in temporarySmallArray's values
+                { 0, 4, 0, 0, 0, 0, 0, 8, 0 },
+                { 4, 0, 8, 0, 0, 0, 0, 11, 0 },
+                { 0, 8, 0, 7, 0, 4, 0, 0, 2 },
+            */
+            temporarySmallArray[i][j] = graph[i+pid*3][j];
+        }
+    }
     
     if(pid=0){
         MPI_RECV(array, 10, MPI_INT, 0, mtag, MPI_COMM_WORLD, &status);
